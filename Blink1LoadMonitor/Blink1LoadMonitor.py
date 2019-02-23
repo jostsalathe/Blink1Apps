@@ -12,21 +12,24 @@ from blink1.blink1 import Blink1
 freq = 4.0
 interval = 1.0/freq
 run = True
+blink1Id = ''
 blink1Found = False
 cliOutput = False
 display = False
 multiLed = False
 
 
-"""signal handler"""
-def sigHandler(signum, frame):
-    msg = "Received signal " + signal.Signals(signum).name + "(" + str(signum) + ")!"
-    print(msg, file=sys.stderr)
-    if signum==signal.SIGTERM:
-        sys.exit()
-    else:
-        sys.exit(signum)
-    'raise OSError(msg)'
+def setMyPattern(myBlink):
+    targetPattern = [(255, 0, 0, 500), (255, 0, 0, 500), (0, 0, 0, 500), (0, 0, 0, 500), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100)]
+    if targetPattern != myBlink.readPattern():
+        myBlink.writePatternLine(500, 'red', 0, 1)
+        myBlink.writePatternLine(500, 'red', 1, 2)
+        myBlink.writePatternLine(500, 'black', 2, 1)
+        myBlink.writePatternLine(500, 'black', 3, 2)
+        for iLine in range(4,16):
+            myBlink.writePatternLine(100, 'black', iLine, 0)
+        myBlink.savePattern()
+
 
 """return value constrained to 0...255"""
 def constrainByte(value):
@@ -64,52 +67,34 @@ for argument in sys.argv:
     elif argument == "-m" or argument == "--multiLed":
         multiLed = True
         print("activating output on extra LEDs")
+    elif argument[0:2] == "-d":
+        blink1Id = argument[2:]
 
-"""set up signal handling"""
-try:
-    signal.signal(signal.SIGINT, sigHandler)
-except:
-    if cliOutput:
-        print("No SIGINT")
-try:
-    signal.signal(signal.SIGQUIT, sigHandler)
-except:
-    if cliOutput:
-        print("No SIGQUIT")
-try:
-    signal.signal(signal.SIGABRT, sigHandler)
-except:
-    if cliOutput:
-        print("No SIGABRT")
-try:
-    signal.signal(signal.SIGTERM, sigHandler)
-except:
-    if cliOutput:
-        print("No SIGTERM")
-try:
-    signal.signal(signal.SIGBREAK, sigHandler)
-except:
-    if cliOutput:
-        print("No SIGBREAK")
 
 while run:
     """get Blink1 device handle"""
     try:
-        b1 = Blink1()
+        if blink1Id == '':
+            b1 = Blink1()
+        else:
+            b1 = Blink1(blink1Id)
         if cliOutput:
-            print("blink1 found")
+            serial = b1.get_serial_number()
+            print("blink1({}) found".format(serial))
         blink1Found = True
+
         """init """
+        setMyPattern(b1)
         nextRun = time.time() + interval
         disk_io_old = psutil.disk_io_counters()
         net_io_old = psutil.net_io_counters()
 
-        """run main loop"""
         b1.fade_to_rgb(0, 0, 0, 0, 0)
     except:
         blink1Found = False
         time.sleep(interval)
 
+    """run main loop"""
     while blink1Found:
         now = time.time()
         if now < nextRun:
