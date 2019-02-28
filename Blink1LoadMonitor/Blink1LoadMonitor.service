@@ -1,0 +1,16 @@
+[Unit]
+Description=Blink(1) System Load Monitor
+
+[Service]
+Type=simple
+User=USERNAME
+Group=USERGROUP
+WorkingDirectory=/PATH/TO/REPO/Blink1Apps/Blink1LoadMonitor/
+ExecStart=/PATH/TO/REPO/Blink1Apps/Blink1LoadMonitor/Blink1LoadMonitor.py -v
+SyslogIdentifier=Blink1LoadMonitor
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+

@@ -11,4 +11,7 @@ The following LED.color to value mapping is utilized:
  - 2.green = disk reads (all disks)
  - 2.blue = memory utilization
 
-A sample Windows task is included that runs the program automatically on startup. 
+A sample Windows task is included that runs the program automatically on startup.
+A systemd service unit is also included.
+In both cases parts in CAPSLOCK are placeholders and should be adjusted to your system.
+
