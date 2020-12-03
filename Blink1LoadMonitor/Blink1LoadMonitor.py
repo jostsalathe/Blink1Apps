@@ -49,7 +49,7 @@ def trans2byte(trans):
     if trans < 0.0:
         return 0
     else:
-        return constrainByte(math.pow(trans,0.3))
+        return constrainByte(math.pow(trans,0.27))
 
 """translate the interval in seconds to fade time in milliseconds"""
 def interval2fadeMS(interval):
