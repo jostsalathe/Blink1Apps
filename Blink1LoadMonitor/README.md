@@ -17,6 +17,6 @@ In both cases parts in CAPSLOCK are placeholders and should be adjusted to your 
 
 You need to install the `psutil` python package as follows:
 
-´´´
+```
 pip3 install psutil
-´´´
+```
