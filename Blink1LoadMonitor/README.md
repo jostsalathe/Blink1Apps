@@ -15,3 +15,8 @@ A sample Windows task is included that runs the program automatically on startup
 A systemd service unit is also included.
 In both cases parts in CAPSLOCK are placeholders and should be adjusted to your system.
 
+You need to install the `psutil` python package as follows:
+
+```
+pip3 install psutil
+```
