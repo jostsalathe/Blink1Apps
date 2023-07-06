@@ -101,8 +101,9 @@ def main():
             net_io_old = psutil.net_io_counters()
 
             b1.fade_to_rgb(0, 0, 0, 0, 0)
-        except:
+        except Exception as e:
             blink1Found = False
+            logging.info(str(e))
             time.sleep(interval)
 
         """run main loop"""
