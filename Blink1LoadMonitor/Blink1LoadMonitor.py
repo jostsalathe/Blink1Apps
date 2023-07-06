@@ -103,7 +103,7 @@ def main():
             b1.fade_to_rgb(0, 0, 0, 0, 0)
         except Exception as e:
             blink1Found = False
-            logging.info(str(e))
+            logging.debug(str(e))
             time.sleep(interval)
 
         """run main loop"""
