@@ -10,24 +10,34 @@ import psutil
 from blink1.blink1 import Blink1
 
 def setMyPattern(myBlink):
-    targetPattern = [(255, 0, 0, 500), (255, 0, 0, 500), (0, 0, 0, 500), (0, 0, 0, 500), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100), (0, 0, 0, 100)]
-    if targetPattern != myBlink.read_pattern():
-        myBlink.write_pattern_line(500, 'red', 0, 1)
-        myBlink.write_pattern_line(500, 'red', 1, 2)
-        myBlink.write_pattern_line(500, 'black', 2, 1)
-        myBlink.write_pattern_line(500, 'black', 3, 2)
-        for iLine in range(4,16):
-            myBlink.write_pattern_line(100, 'black', iLine, 0)
-        myBlink.save_pattern()
+    targetPattern = [(9, 0, 0, 500), (9, 0, 0, 500), (0, 0, 0, 500), (0, 0, 0, 500), (0, 0, 0, 1000)]
+    oldPattern = myBlink.read_pattern()[:5]
+    logging.debug("LM: current pattern: " + str(oldPattern))
+    if targetPattern != oldPattern:
+        myBlink.write_pattern_line(500, '#300000', 0, 1)
+        myBlink.write_pattern_line(500, '#300000', 1, 2)
+        myBlink.write_pattern_line(500, '#000000', 2, 1)
+        myBlink.write_pattern_line(500, '#000000', 3, 2)
+        myBlink.write_pattern_line(1000, '#000000', 4, 0)
+        # for iLine in range(5,16):
+        #     myBlink.write_pattern_line(100, '#000000', iLine, 0)
+        myBlink.server_tickle(True, 1000.0, True, 0, 4)
+        logging.debug("LM: new pattern: " + str(myBlink.read_pattern()[:5]))
+        try:
+            myBlink.save_pattern()
+        except Exception as e:
+            logging.debug("LM: save_pattern() allegedly failed")
+            raise e
+            
 
 
 """return value constrained to 0...255"""
 def constrainByte(value):
     if (value < 0):
-        logging.warning(traceback.format_stack() + "  constraining value from " + str(value), " to 0\n")
+        logging.warning("LM: " + traceback.format_stack() + "  constraining value from " + str(value), " to 0\n")
         return 0
     elif (value > 255):
-        logging.warning(traceback.format_stack() + "  constraining value from " + str(value), " to 255\n")
+        logging.warning("LM: " + traceback.format_stack() + "  constraining value from " + str(value), " to 255\n")
         return 255
     else:
         return value
@@ -69,15 +79,15 @@ def main():
         if argument == "-v" or argument == "--verbose":
             cliOutput = True
             print("activating CLI output")
-            logging.info("activating CLI output")
+            logging.info("LM: activating CLI output")
         elif argument == "-d" or argument == "--display":
             display = True
             print("activating data output to CLI")
-            logging.info("activating data output to CLI")
+            logging.info("LM: activating data output to CLI")
         elif argument == "-m" or argument == "--multiLed":
             multiLed = True
             print("activating output on extra LEDs")
-            logging.info("activating output on extra LEDs")
+            logging.info("LM: activating output on extra LEDs")
         elif argument[0:2] == "-d":
             blink1Id = argument[2:]
 
@@ -89,7 +99,7 @@ def main():
                 b1 = Blink1()
             else:
                 b1 = Blink1(blink1Id)
-            logging.info("blink1({}) found".format(b1.get_serial_number()))
+            logging.info("LM: blink1({}) found".format(b1.get_serial_number()))
             if cliOutput:
                 print("blink1({}) found".format(b1.get_serial_number()))
             blink1Found = True
@@ -103,7 +113,7 @@ def main():
             b1.fade_to_rgb(0, 0, 0, 0, 0)
         except Exception as e:
             blink1Found = False
-            logging.debug(str(e))
+            logging.debug("LM: " + str(e))
             time.sleep(interval)
 
         """run main loop"""
@@ -171,7 +181,7 @@ def main():
                 except:
                     if cliOutput:
                         print("blink1 vanished", file=sys.stderr)
-                    logging.info("blink1 vanished")
+                    logging.info("LM: blink1 vanished")
                     b1.close()
                     blink1Found = False
 
